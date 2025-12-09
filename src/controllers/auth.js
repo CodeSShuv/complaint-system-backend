@@ -38,9 +38,9 @@ export const handleUserLogin = async (req, res) => {
   try {
     let { email, password } = req.body;
     let user = await User.findOne({ email: email });
-    console.log(password, user);
+
     if (!user) return res.status(404).json({ msg: "User not found" });
-    console.log("working");
+
     let isMatch = await compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ msg: "Invalid Password" });
@@ -61,7 +61,6 @@ export const handleUserLogin = async (req, res) => {
       },
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).json({
       msg: e,
     });

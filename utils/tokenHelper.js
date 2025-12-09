@@ -6,5 +6,5 @@ export let generateToken = (user) => {
 };
 
 export let decodeToken = (token) => {
-  decode(token, process.env.JWT_SECRETE);
+  return decode(token, process.env.JWT_SECRETE);
 };
