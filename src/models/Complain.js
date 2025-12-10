@@ -5,5 +5,10 @@ let ComplainSchema = new Schema({
   category: String,
   subject: String,
   body: String,
+  status: {
+    type: String,
+    enum: ["Pending", "Active", "Fulfilled"],
+    default: "Pending",
+  },
 });
 export const Complain = model("Complain", ComplainSchema);

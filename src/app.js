@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 // ===Routers
 import authRouter from "./routes/auth.js";
 import { loggedInUserOnly } from "./middlewares/loggedInUserOnly.js";
+import complainRouter from "./routes/complain.js";
 const app = express();
 app.use(
   cors({
@@ -14,6 +15,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use("/auth", authRouter);
+app.use("/complain", complainRouter);
 app.get("/", (req, res) => {
   res.send("Hello");
 });
