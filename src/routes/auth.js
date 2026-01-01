@@ -7,6 +7,7 @@ import {
 } from "../controllers/auth.js";
 import { User } from "../models/User.js";
 import { loggedInUserOnly } from "../middlewares/loggedInUserOnly.js";
+
 const authRouter = express.Router();
 authRouter.post(
   "/login",
@@ -30,4 +31,5 @@ authRouter.post(
   handleUserRegister
 );
 authRouter.get("/user", loggedInUserOnly, handleCookieLogin);
+
 export default authRouter;

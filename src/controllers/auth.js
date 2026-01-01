@@ -46,6 +46,7 @@ export const handleUserLogin = async (req, res) => {
       return res.status(400).json({ msg: "Invalid Password" });
     }
     let payload = {
+      userId: user.id,
       firstName: user.firstname,
       lastName: user.lastname,
       email: user.email,
