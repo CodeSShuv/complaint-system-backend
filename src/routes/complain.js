@@ -1,11 +1,12 @@
 import express from "express";
 import handleGetComplain, {
+  handleFetchAllComplains,
   handleGetComplainCount,
 } from "../controllers/complain.js";
 import { loggedInUserOnly } from "../middlewares/loggedInUserOnly.js";
 const complainRouter = express.Router();
 complainRouter
-  .get("/", (req, res) => {})
   .post("/", loggedInUserOnly, handleGetComplain)
-  .get("/count", loggedInUserOnly, handleGetComplainCount);
+  .get("/count", loggedInUserOnly, handleGetComplainCount)
+  .get("/all", loggedInUserOnly, handleFetchAllComplains);
 export default complainRouter;

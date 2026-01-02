@@ -2,17 +2,13 @@ import { Complain } from "../models/Complain.js";
 const handleGetComplain = async (req, res, next) => {
   let model = req.body;
   model.userId = req.user.user.userId;
-  console.log(model);
+
   let complain = new Complain(model);
   complain.save();
   res.json({ msg: "Complain Sent" });
 };
 export default handleGetComplain;
 export const handleGetComplainCount = async (req, res, next) => {
-  // let NOfActive;
-  // let NOfPending;
-
-  //to complete these two tasks in time
   try {
     let [active, pending, fulfilled] = await Promise.all([
       Complain.find({ status: "Active" }),
@@ -31,4 +27,8 @@ export const handleGetComplainCount = async (req, res, next) => {
   }
 };
 
-export const handleFetchComplain = async (req, res) => {};
+export const handleFetchAllComplains = async (req, res) => {
+  let allComplains = await Complain.find();
+  console.log(allComplains);
+  return res.json({ data: [...allComplains] });
+};
