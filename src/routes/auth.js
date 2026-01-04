@@ -7,12 +7,12 @@ import {
 } from "../controllers/auth.js";
 import { User } from "../models/User.js";
 import { loggedInUserOnly } from "../middlewares/loggedInUserOnly.js";
-
+import useAsync from "../../utils/useAsync.js";
 const authRouter = express.Router();
 authRouter.post(
   "/login",
   [body("email").isEmail().withMessage("Invalid Email Format")],
-  handleUserLogin
+  useAsync(handleUserLogin)
 );
 authRouter.post(
   "/signup",
@@ -30,6 +30,6 @@ authRouter.post(
   ],
   handleUserRegister
 );
-authRouter.get("/user", loggedInUserOnly, handleCookieLogin);
+authRouter.get("/user", loggedInUserOnly, useAsync(handleCookieLogin));
 
 export default authRouter;

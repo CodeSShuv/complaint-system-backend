@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.js";
 import { loggedInUserOnly } from "./middlewares/loggedInUserOnly.js";
 import complainRouter from "./routes/complain.js";
+import handleError from "./middlewares/errorHandler.js";
 const app = express();
 app.use(
   cors({
@@ -19,5 +20,6 @@ app.use("/complain", complainRouter);
 app.get("/", (req, res) => {
   res.send("Hello");
 });
+app.use(handleError);
 
 export default app;
