@@ -2,7 +2,10 @@ import mongoose, { Schema, model } from "mongoose";
 
 let ComplainSchema = new Schema(
   {
-    userId: { type: mongoose.SchemaTypes.ObjectId, required: false },
+    userId: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: "User", required: false
+    },
     category: String,
     subject: String,
     body: String,

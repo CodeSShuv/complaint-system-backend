@@ -3,22 +3,34 @@ import { Schema, model } from "mongoose";
 let userSchema = new Schema({
   firstname: String,
   lastname: String,
-  org_name: String,
+
   email: {
     type: String,
     unique: true,
     required: true,
   },
-
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationToken: String,
   password: {
     type: String,
     required: true,
   },
   role: {
     type: String,
-    enum: ["Admin", "Student"],
+    enum: ["Admin", "Student", "Staff"],
     required: true,
+    default: "Student"
   },
+  status: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: function () {
+      return this.role === "student" ? "pending" : "approved";
+    }
+  }
 });
 
 export const User = model("User", userSchema);

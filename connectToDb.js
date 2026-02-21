@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 export const connectToDb = () => {
   mongoose
-    .connect(process.env.DB_CONNECTION_STRING)
+    .connect("mongodb://localhost:27017/cms")
     .then(() => {
       console.log("connected to mongodb");
     })

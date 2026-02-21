@@ -1,17 +1,21 @@
 import express from "express";
-import handleGetComplain, {
-  handleFetchAllComplains,
-  handleGetComplainCount,
+import handleGetComplaints, {
+  handleFetchAllComplaints,
+  handleGetComplaintCount,
+  handleFetchComplaint,
+  handleDeleteComplaint
 } from "../controllers/complain.js";
 import { loggedInUserOnly } from "../middlewares/loggedInUserOnly.js";
 import useAsync from "../../utils/useAsync.js";
+import authorize from "../middlewares/authorize.js";
 const complainRouter = express.Router();
 complainRouter
-  .post("/", loggedInUserOnly, useAsync(handleGetComplain))
+  .post("/", loggedInUserOnly, useAsync(handleGetComplaints))
 
-  .get("/count", loggedInUserOnly, useAsync(handleGetComplainCount))
+  .get("/counts", loggedInUserOnly, useAsync(handleGetComplaintCount))
 
-  .get("/all", loggedInUserOnly, useAsync(handleFetchAllComplains))
+  .get("/all", loggedInUserOnly, useAsync(handleFetchAllComplaints))
+  .get('/:complaintId', loggedInUserOnly, useAsync(handleFetchComplaint))
+  .delete("/:complaintId", loggedInUserOnly, authorize(["Student"]), useAsync(handleDeleteComplaint));
 
-  .get("/:complainId", loggedInUserOnly);
 export default complainRouter;

@@ -4,6 +4,7 @@ import {
   handleUserRegister,
   handleUserLogin,
   handleCookieLogin,
+  handleEmailVerification,
 } from "../controllers/auth.js";
 import { User } from "../models/User.js";
 import { loggedInUserOnly } from "../middlewares/loggedInUserOnly.js";
@@ -29,7 +30,8 @@ authRouter.post(
       }),
   ],
   handleUserRegister
-);
+)
+  .get("/verify/:token", useAsync(handleEmailVerification));
 authRouter.get("/user", loggedInUserOnly, useAsync(handleCookieLogin));
 
 export default authRouter;
