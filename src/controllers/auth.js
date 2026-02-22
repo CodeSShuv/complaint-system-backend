@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 const { hash, compare } = bcrypt;
 import { User } from "../models/User.js";
 import { generateToken } from "../../utils/tokenHelper.js";
@@ -30,7 +31,7 @@ export const handleUserRegister = async (req, res) => {
   });
 
   await newUser.save();
-  let isMailSent = await senderEmail(email, "Email Verification", verificationLink, firstName + " " + lastName);
+  let isMailSent = await senderEmail(email, "Email Verification", verificationEmailTemplate(newUser, verificationLink), firstName + " " + lastName);
   if (!isMailSent) {
     throw AppError("Failed to send verification email. Please try again later.", 500);
   }
@@ -88,8 +89,73 @@ export const handleEmailVerification = async (req, res) => {
   }
 
   user.isVerified = true;
-  user.verificationToken = undefined; // Clear the token after verification
+  user.verificationToken = undefined;
   await user.save();
 
   return res.json({ msg: "Email verified successfully. You can now log in." });
+}
+export const changePassword = async (req, res) => {
+
+  const userId = req.user.user.userId;
+  console.log(req.body);
+  const { currentPassword, newPassword } = req.body;
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatch) {
+    return res.status(400).json({ message: "Current password is incorrect" });
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 12);
+  user.password = hashedPassword;
+  await user.save();
+
+  res.json({ msg: "Password changed successfully" });
+
+};
+
+
+
+export const forgotPassword = async (req, res) => {
+
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ message: "Email not found" });
+  }
+  let newPassword = crypto.randomBytes(4).toString("hex")
+  let hashedPassword = await hash(newPassword, 12)
+  let emailToken = generateToken({ email: email }, "1h");
+  let verificationLink = `http://localhost:5173/verify-email/${emailToken}`;
+
+  user.password = hashedPassword;
+
+
+  await user.save();
+  let isMailSent = await senderEmail(user.email, "Reset Password", `<p>Your password has been successfully reset. Your new password is:</p>
+
+<h2 style="background-color: #f3f4f6; padding: 10px 15px; display: inline-block; border-radius: 6px; font-family: monospace;">
+  ${newPassword}
+</h2>
+
+<p>Please <strong>log in using this password</strong> and make sure to change it after logging in for security purposes.</p>
+
+<p style="margin-top: 20px;">If you did not request this password change, please contact support immediately.</p>
+
+<hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+
+<p style="font-size: 12px; color: #6b7280;">
+  This is an automated message from your CMS. Please do not reply to this email.
+</p>`);
+  if (!isMailSent) {
+    throw AppError("Failed to send  email. Please try again later.", 500);
+  }
+
+  return res.json({ msg: "Password Reset. Please check your mail" });
 }

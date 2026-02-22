@@ -8,9 +8,9 @@ use('cms');
 db.getCollection('users').insertOne({
   firstname: "Shuvam",
   lastname: "Gautam",
-
+  role: "Super Admin",
   email: "admin@cms.com",
-
+  isVerified: true,
   password: "$2a$12$fXwW/kTSnAhEogsovZd4n.TA3lf/ROtl2ESo2/LI/QgceKKh2irLC",
-
+  "status": "approved"
 });

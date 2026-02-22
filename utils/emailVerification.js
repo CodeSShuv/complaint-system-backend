@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import verificationEmailTemplate from './emailTemplateGenerator.js';
 dotenv.config();
-const senderEmail = async (email, subject, verificationLink, user) => {
+const senderEmail = async (email, subject, emailTemplate) => {
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -16,7 +16,7 @@ const senderEmail = async (email, subject, verificationLink, user) => {
       from: process.env.MAIL_ID,
       to: email,
       subject: subject,
-      html: verificationEmailTemplate(user, verificationLink)
+      html: emailTemplate
     };
 
     await transporter.sendMail(mailOptions);

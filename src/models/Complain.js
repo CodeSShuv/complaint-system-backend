@@ -12,7 +12,7 @@ let ComplainSchema = new Schema(
     message: String,
     status: {
       type: String,
-      enum: ["Pending", "Active", "Fulfilled"],
+      enum: ["Pending", "In Progress", "Resolved"],
       default: "Pending",
       required: true,
     },

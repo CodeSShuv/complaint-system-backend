@@ -5,6 +5,8 @@ import {
   handleUserLogin,
   handleCookieLogin,
   handleEmailVerification,
+  changePassword,
+  forgotPassword
 } from "../controllers/auth.js";
 import { User } from "../models/User.js";
 import { loggedInUserOnly } from "../middlewares/loggedInUserOnly.js";
@@ -32,6 +34,8 @@ authRouter.post(
   handleUserRegister
 )
   .get("/verify/:token", useAsync(handleEmailVerification));
-authRouter.get("/user", loggedInUserOnly, useAsync(handleCookieLogin));
+authRouter.get("/user", loggedInUserOnly, useAsync(handleCookieLogin))
+  .put("/change-password", loggedInUserOnly, changePassword)
+  .post("/forgot-password", useAsync(forgotPassword));
 
 export default authRouter;

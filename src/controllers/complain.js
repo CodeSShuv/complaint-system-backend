@@ -55,7 +55,8 @@ export const handleFetchComplaint = async (req, res) => {
   let complaintId = req.params.complaintId;
   let userId = req.user.user.userId;
 
-  let complaint = await Complain.findById(new mongoose.Types.ObjectId(complaintId)).populate("userId", "firstname lastname email");
+  let complaint = await Complain.findById(new mongoose.Types.ObjectId(complaintId)).populate("userId", "firstname lastname email")
+  // console.log(complaint);
   if (!complaint) {
     throw new AppError("Not Found", 404);
   } else if (req.user.user.role !== "Admin") {
