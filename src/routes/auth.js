@@ -17,19 +17,26 @@ authRouter.post(
   [body("email").isEmail().withMessage("Invalid Email Format")],
   useAsync(handleUserLogin)
 );
+
 authRouter.post(
   "/signup",
   [
     body("email")
       .isEmail()
       .withMessage("invalid Email format")
+      .custom((value) => {
+        if (!value.endsWith("@mbmc.edu.np")) {
+          throw new Error("Only MBMC college email allowed");
+        }
+        return true;
+      })
       .custom(async (value) => {
         let existingEmail = User.findOne({ email: value });
         if (!existingEmail) {
           throw new Error("Email Already Register");
         }
         return true;
-      }),
+      })
   ],
   handleUserRegister
 )

@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-import verificationEmailTemplate from './emailTemplateGenerator.js';
+
 dotenv.config();
 const senderEmail = async (email, subject, emailTemplate) => {
   try {

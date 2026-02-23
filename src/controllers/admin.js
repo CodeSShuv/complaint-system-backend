@@ -2,6 +2,8 @@ import { User } from '../models/User.js';
 import { Complain } from '../models/Complain.js';
 import senderEmail from '../../utils/emailVerification.js';
 import { templateGenerator } from "../email-template/updateStatus.js";
+import { validationResult } from "express-validator";
+import AppError from '../../utils/AppError.js';
 const getAllUsers = async (req, res) => {
 
   let users = await User.find({}).select("-password");
@@ -29,6 +31,11 @@ const updateComplaintStatus = async (req, res) => {
   res.json({ msg: "Complaint status updated", status: status });
 }
 const createAdmin = async (req, res) => {
+  let errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    throw new AppError(errors.array()[0].msg, 401);
+  }
   let { email, password, firstname, lastname } = req.body;
   if (!email || !password || !firstname || !lastname) {
     return res.status(400).json({ msg: "All fields are required" });
@@ -46,7 +53,38 @@ const deleteUser = async (req, res) => {
   if (!user) {
     return res.status(404).json({ msg: "User not found" });
   }
+  let complaints = await Complain.find({ userId: userId });
+  await Promise.all(complaints.map(async (complaint) => {
+    await Complain.findByIdAndDelete(complaint._id);
+  }));
   await User.findByIdAndDelete(userId);
+
   res.json({ msg: "User deleted successfully" });
 }
-export { getAllUsers, getAllUnverifiedUsers, updateComplaintStatus, createAdmin, deleteUser };
+
+const getStats = async (req, res) => {
+  console.log(req.user.user);
+  let totalStudents = await User.countDocuments({ role: "Student" });
+  let totalAdmins = await User.countDocuments({ role: "Admin" });
+  let totalComplaints = await Complain.countDocuments();
+  let activeComplaints = await Complain.countDocuments({ status: "Active" });
+  let pendingComplaints = await Complain.countDocuments({ status: "Pending" });
+  let fulfilledComplaints = await Complain.countDocuments({ status: "Fulfilled" });
+  console.log({
+    totalStudents,
+    totalAdmins,
+    totalComplaints,
+    activeComplaints,
+    pendingComplaints,
+    fulfilledComplaints
+  });
+  res.json({
+    totalStudents,
+    totalAdmins,
+    totalComplaints,
+    activeComplaints,
+    pendingComplaints,
+    fulfilledComplaints
+  });
+}
+export { getAllUsers, getAllUnverifiedUsers, updateComplaintStatus, createAdmin, deleteUser, getStats };

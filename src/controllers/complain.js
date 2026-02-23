@@ -16,13 +16,13 @@ export const handleGetComplaintCount = async (req, res) => {
   let active, pending, fulfilled;
   if (req.user.user.role === "Admin") {
     [active, pending, fulfilled] = await Promise.all([
-      Complain.find({ status: "Active" }),
+      Complain.find({ status: "In Progress" }),
       Complain.find({ status: "Pending" }),
       Complain.find({ status: "Fulfilled" }),
     ]);
   } else {
     [active, pending, fulfilled] = await Promise.all([
-      Complain.find({ userId: new mongoose.Types.ObjectId(req.user.user.userId), status: "Active" }),
+      Complain.find({ userId: new mongoose.Types.ObjectId(req.user.user.userId), status: "In Progress" }),
       Complain.find({ userId: new mongoose.Types.ObjectId(req.user.user.userId), status: "Pending" }),
       Complain.find({ userId: new mongoose.Types.ObjectId(req.user.user.userId), status: "Fulfilled" }),
     ]);
@@ -38,7 +38,7 @@ export const handleGetComplaintCount = async (req, res) => {
 
 export const handleFetchAllComplaints = async (req, res) => {
   let allComplains;
-  if (req.user.user.role === "Admin") {
+  if (req.user.user.role === "Admin" || req.user.user.role === "Super Admin") {
     console.log(req.user.user.role);
     allComplains = await Complain.find();
 
@@ -54,19 +54,22 @@ export const handleFetchAllComplaints = async (req, res) => {
 export const handleFetchComplaint = async (req, res) => {
   let complaintId = req.params.complaintId;
   let userId = req.user.user.userId;
-
+  console.log(req.user.user);
   let complaint = await Complain.findById(new mongoose.Types.ObjectId(complaintId)).populate("userId", "firstname lastname email")
   // console.log(complaint);
   if (!complaint) {
     throw new AppError("Not Found", 404);
-  } else if (req.user.user.role !== "Admin") {
+  }
+  else if (req.user.user.role === "Admin" || req.user.user.role === "Super Admin") {
+    res.json({ data: complaint });
 
-    if (complaint.userId._id.toString() !== userId) {
-      throw new AppError("Unauthorized", 401);
-    }
+  }
+  if (complaint.userId._id.toString() !== userId && req.user.user.role === "Student") {
+    throw new AppError("Unauthorized", 401);
   }
 
-  res.json({ data: complaint });
+
+
 };
 
 

@@ -4,19 +4,21 @@ const { hash, compare } = bcrypt;
 import { User } from "../models/User.js";
 import { generateToken } from "../../utils/tokenHelper.js";
 import senderEmail from "../../utils/emailVerification.js";
+import verificationEmailTemplate from "../../utils/emailTemplateGenerator.js";
 import { validationResult } from "express-validator";
 import AppError from "../../utils/AppError.js";
 export const handleUserRegister = async (req, res) => {
   let errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw AppError(errors.array(), 401);
+    throw AppError(errors.array()[0].msg, 401);
   }
   const { firstName, lastName, email, password, confirmPassword } = req.body;
+
   //to check weather password is properly confirmed or not
+
   if (password != confirmPassword) {
     throw AppError("Please confirm the correct password", 401);
   }
-
   let hashedPassword = await hash(password, 12);
   //creating a new user
   let emailToken = generateToken({ email: email }, "1h");
@@ -30,8 +32,10 @@ export const handleUserRegister = async (req, res) => {
     verificationToken: emailToken
   });
 
+
   await newUser.save();
-  let isMailSent = await senderEmail(email, "Email Verification", verificationEmailTemplate(newUser, verificationLink), firstName + " " + lastName);
+  let isMailSent = await senderEmail(email, "Email Verification", verificationEmailTemplate(firstName + " " + lastName, verificationLink),);
+  console.log(isMailSent);
   if (!isMailSent) {
     throw AppError("Failed to send verification email. Please try again later.", 500);
   }
@@ -41,11 +45,17 @@ export const handleUserRegister = async (req, res) => {
 
 //login controller
 export const handleUserLogin = async (req, res) => {
+  let errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw AppError(errors.array(), 401);
+  }
   let { email, password } = req.body;
   let user = await User.findOne({ email: email });
 
   if (!user) throw new AppError("User not found");
-
+  if (!user.isVerified) {
+    throw new AppError("Please verify your email before logging in", 401);
+  }
   let isMatch = await compare(password, user.password);
   if (!isMatch) {
     throw new AppError("Invalid Username or Password", 401);
@@ -132,7 +142,7 @@ export const forgotPassword = async (req, res) => {
   let newPassword = crypto.randomBytes(4).toString("hex")
   let hashedPassword = await hash(newPassword, 12)
   let emailToken = generateToken({ email: email }, "1h");
-  let verificationLink = `http://localhost:5173/verify-email/${emailToken}`;
+  // let verificationLink = `http://localhost:5173/verify-email/${emailToken}`;
 
   user.password = hashedPassword;
 

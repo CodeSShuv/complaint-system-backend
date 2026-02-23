@@ -49,7 +49,7 @@ const templateGenerator = (userFullName, complaint, remarks) => {
             <td style="padding:10px; background:#f1f5f9; font-weight:bold;">Remarks</td>
             <td style="padding:10px; background:#f8fafc;">
               ${remarks}
-            </td>forgotPassword
+            </td>
           </tr>
 
           <tr>
