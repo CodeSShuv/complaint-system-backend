@@ -7,6 +7,7 @@ import authRouter from "./routes/auth.js";
 import complainRouter from "./routes/complain.js";
 import handleError from "./middlewares/errorHandler.js";
 import adminRouter from "./routes/admin.js";
+import { departmentRouter } from "./routes/department.js";
 const app = express();
 app.use(
   cors(
@@ -20,6 +21,7 @@ app.use(cookieParser());
 app.use("/auth", authRouter);
 app.use("/complaint", complainRouter);
 app.use("/admin", adminRouter);
+app.use("/department", departmentRouter);
 app.use(handleError);
 
 export default app;

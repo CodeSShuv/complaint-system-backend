@@ -21,7 +21,7 @@ const updateComplaintStatus = async (req, res) => {
   let { status, remarks } = req.body;
   let complaint = await Complain.findById(complaintId);
   if (!complaint) {
-    return res.status(404).json({ msg: "Complaint not found" });
+    throw new AppError("User with this email already exists", 400);
   }
   complaint.status = status;
   await complaint.save();
@@ -38,10 +38,10 @@ const createAdmin = async (req, res) => {
   }
   let { email, password, firstname, lastname } = req.body;
   if (!email || !password || !firstname || !lastname) {
-    return res.status(400).json({ msg: "All fields are required" });
+    throw new AppError("Please fill the fields correctly ", 401);
   }
   if (await User.findOne({ email })) {
-    return res.status(400).json({ msg: "User with this email already exists" });
+    throw new AppError("User with this email already exists", 400);
   }
   let user = new User({ email, password, firstname, lastname, role: "Admin", isVerified: true });
   await user.save();
@@ -51,7 +51,7 @@ const deleteUser = async (req, res) => {
   let userId = req.params.userId;
   let user = await User.findById(userId);
   if (!user) {
-    return res.status(404).json({ msg: "User not found" });
+    throw new AppError("User not found", 404);
   }
   let complaints = await Complain.find({ userId: userId });
   await Promise.all(complaints.map(async (complaint) => {

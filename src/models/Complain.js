@@ -6,7 +6,11 @@ let ComplainSchema = new Schema(
       type: mongoose.SchemaTypes.ObjectId,
       ref: "User", required: false
     },
-    category: String,
+    deptId: {
+      type: Schema.Types.ObjectId,
+      ref: "Department",
+      required: true
+    },
     subject: String,
     body: String,
     message: String,

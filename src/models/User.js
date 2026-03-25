@@ -29,6 +29,13 @@ let userSchema = new Schema({
     enum: ["pending", "approved", "rejected"],
     default: function () {
       return this.role === "student" ? "pending" : "approved";
+    },
+    deptId: {
+      type: Schema.Types.ObjectId,
+      ref: "Department",
+      required: function () {
+        return this.role === "Admin";
+      }
     }
   }
 });
