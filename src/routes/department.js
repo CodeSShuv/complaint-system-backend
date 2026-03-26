@@ -6,10 +6,10 @@ import useAsync from "../../utils/useAsync.js";
 import authorize from "../middlewares/authorize.js";
 
 const departmentRouter = Router();
-departmentRouter.get("/fetch", loggedInUserOnly, authorize(["Admin", "Super Admin"]), useAsync(fetchDepartments))
-  .post("/add", loggedInUserOnly, authorize("Super Admin"), [body('name')
-    .isString("Department name must be a string")
-    .isEmpty("Department name is required")
+departmentRouter.get("/fetch", loggedInUserOnly, authorize(["Admin", "Super Admin","Student"]), useAsync(fetchDepartments))
+  .post("/add", loggedInUserOnly, authorize("Super Admin"), [body('depName')
+    // .isString("Department name must be a string")
+    // .isEmpty("Department name is required")
 
   ],
     useAsync(addDepartment)

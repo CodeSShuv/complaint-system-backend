@@ -4,10 +4,12 @@ import senderEmail from '../../utils/emailVerification.js';
 import { templateGenerator } from "../email-template/updateStatus.js";
 import { validationResult } from "express-validator";
 import AppError from '../../utils/AppError.js';
+import { Department } from '../models/Department.js';
+import bcrypt from 'bcryptjs';
 const getAllUsers = async (req, res) => {
 
   let users = await User.find({}).select("-password");
-  console.log(users);
+  // console.log(users);
   res.json({ data: users });
 };
 const getAllUnverifiedUsers = async (req, res) => {
@@ -26,24 +28,34 @@ const updateComplaintStatus = async (req, res) => {
   complaint.status = status;
   await complaint.save();
   complaint = await complaint.populate("userId", "email firstname lastname");
-  console.log(complaint);
+  // console.log(complaint);
   senderEmail(complaint.userId.email, "Complaint Status Updated", templateGenerator(complaint.userId.firstname + " " + complaint.userId.lastname, complaint, remarks));
   res.json({ msg: "Complaint status updated", status: status });
 }
 const createAdmin = async (req, res) => {
   let errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log(errors.array());
+    // console.log(errors.array());
     throw new AppError(errors.array()[0].msg, 401);
   }
-  let { email, password, firstname, lastname } = req.body;
+  let { email, password, firstname, lastname,department } = req.body;
+
   if (!email || !password || !firstname || !lastname) {
     throw new AppError("Please fill the fields correctly ", 401);
   }
   if (await User.findOne({ email })) {
     throw new AppError("User with this email already exists", 400);
   }
-  let user = new User({ email, password, firstname, lastname, role: "Admin", isVerified: true });
+  let dept = await Department.findOne({name:department});
+
+  if(!dept){
+    throw new AppError("Invalid Department");
+  }
+  // console.log(dept._id)
+  let hashedPassword = await bcrypt.hash(password,12);
+
+  let user = new User({ email:email, password:hashedPassword, firstname:firstname, lastname:lastname, role: "Admin", isVerified: true ,deptId:dept._id});
+
   await user.save();
   res.json({ msg: "Admin created successfully" });
 }
@@ -63,21 +75,21 @@ const deleteUser = async (req, res) => {
 }
 
 const getStats = async (req, res) => {
-  console.log(req.user.user);
+  // console.log(req.user.user);
   let totalStudents = await User.countDocuments({ role: "Student" });
   let totalAdmins = await User.countDocuments({ role: "Admin" });
   let totalComplaints = await Complain.countDocuments();
   let activeComplaints = await Complain.countDocuments({ status: "Active" });
   let pendingComplaints = await Complain.countDocuments({ status: "Pending" });
   let fulfilledComplaints = await Complain.countDocuments({ status: "Fulfilled" });
-  console.log({
-    totalStudents,
-    totalAdmins,
-    totalComplaints,
-    activeComplaints,
-    pendingComplaints,
-    fulfilledComplaints
-  });
+  // console.log({
+  //   totalStudents,
+  //   totalAdmins,
+  //   totalComplaints,
+  //   activeComplaints,
+  //   pendingComplaints,
+  //   fulfilledComplaints
+  // });
   res.json({
     totalStudents,
     totalAdmins,

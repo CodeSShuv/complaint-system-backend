@@ -10,14 +10,14 @@ import AppError from "../../utils/AppError.js";
 export const handleUserRegister = async (req, res) => {
   let errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw AppError(errors.array()[0].msg, 401);
+    throw new AppError(errors.array()[0].msg, 401);
   }
   const { firstName, lastName, email, password, confirmPassword } = req.body;
 
   //to check weather password is properly confirmed or not
 
   if (password != confirmPassword) {
-    throw AppError("Please confirm the correct password", 401);
+    throw new AppError("Please confirm the correct password", 401);
   }
   let hashedPassword = await hash(password, 12);
   //creating a new user
@@ -37,7 +37,7 @@ export const handleUserRegister = async (req, res) => {
   let isMailSent = await senderEmail(email, "Email Verification", verificationEmailTemplate(firstName + " " + lastName, verificationLink),);
   console.log(isMailSent);
   if (!isMailSent) {
-    throw AppError("Failed to send verification email. Please try again later.", 500);
+    throw new AppError("Failed to send verification email. Please try again later.", 500);
   }
 
   return res.json({ msg: "User Registered Successfully. Please verify your email." });
@@ -47,7 +47,7 @@ export const handleUserRegister = async (req, res) => {
 export const handleUserLogin = async (req, res) => {
   let errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw AppError(errors.array(), 401);
+    throw new AppError(errors.array(), 401);
   }
   let { email, password } = req.body;
   let user = await User.findOne({ email: email });
@@ -66,7 +66,8 @@ export const handleUserLogin = async (req, res) => {
     lastName: user.lastname,
     email: user.email,
     role: user.role,
-    isVerified: user.isVerified
+    isVerified: user.isVerified,
+    deptId:user.deptId
 
   };
   let token = generateToken(payload);
@@ -95,7 +96,7 @@ export const handleEmailVerification = async (req, res) => {
   let user = await User.findOne({ verificationToken: token });
 
   if (!user) {
-    throw AppError("Invalid or expired verification token", 400);
+    throw new AppError("Invalid or expired verification token", 400);
   }
 
   user.isVerified = true;
@@ -107,7 +108,7 @@ export const handleEmailVerification = async (req, res) => {
 export const changePassword = async (req, res) => {
 
   const userId = req.user.user.userId;
-  console.log(req.body);
+  // console.log(req.body);
   const { currentPassword, newPassword } = req.body;
 
   const user = await User.findById(userId);
@@ -164,7 +165,7 @@ export const forgotPassword = async (req, res) => {
   This is an automated message from your CMS. Please do not reply to this email.
 </p>`);
   if (!isMailSent) {
-    throw AppError("Failed to send  email. Please try again later.", 500);
+    throw new AppError("Failed to send  email. Please try again later.", 500);
   }
 
   return res.json({ msg: "Password Reset. Please check your mail" });
