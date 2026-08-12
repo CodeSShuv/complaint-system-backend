@@ -9,7 +9,6 @@ import bcrypt from 'bcryptjs';
 const getAllUsers = async (req, res) => {
 
   let users = await User.find({}).select("-password");
-  // console.log(users);
   res.json({ data: users });
 };
 const getAllUnverifiedUsers = async (req, res) => {
@@ -35,7 +34,7 @@ const updateComplaintStatus = async (req, res) => {
 const createAdmin = async (req, res) => {
   let errors = validationResult(req);
   if (!errors.isEmpty()) {
-    // console.log(errors.array());
+   
     throw new AppError(errors.array()[0].msg, 401);
   }
   let { email, password, firstname, lastname,department } = req.body;
@@ -75,21 +74,14 @@ const deleteUser = async (req, res) => {
 }
 
 const getStats = async (req, res) => {
-  // console.log(req.user.user);
+
   let totalStudents = await User.countDocuments({ role: "Student" });
   let totalAdmins = await User.countDocuments({ role: "Admin" });
   let totalComplaints = await Complain.countDocuments();
   let activeComplaints = await Complain.countDocuments({ status: "Active" });
   let pendingComplaints = await Complain.countDocuments({ status: "Pending" });
   let fulfilledComplaints = await Complain.countDocuments({ status: "Fulfilled" });
-  // console.log({
-  //   totalStudents,
-  //   totalAdmins,
-  //   totalComplaints,
-  //   activeComplaints,
-  //   pendingComplaints,
-  //   fulfilledComplaints
-  // });
+
   res.json({
     totalStudents,
     totalAdmins,

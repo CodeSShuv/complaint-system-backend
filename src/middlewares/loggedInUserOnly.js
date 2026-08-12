@@ -11,6 +11,6 @@ export const loggedInUserOnly = (req, res, next) => {
     throw new AppError("Invalid Token", 401);
   }
 
-  req.user = user;
+  req.user = user.user;
   next();
 };

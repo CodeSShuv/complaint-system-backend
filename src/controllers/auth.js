@@ -31,11 +31,11 @@ export const handleUserRegister = async (req, res) => {
     password: hashedPassword,
     verificationToken: emailToken
   });
-
+//verificaiton token stored in the database aswell as sent in email.
 
   await newUser.save();
   let isMailSent = await senderEmail(email, "Email Verification", verificationEmailTemplate(firstName + " " + lastName, verificationLink),);
-  console.log(isMailSent);
+ 
   if (!isMailSent) {
     throw new AppError("Failed to send verification email. Please try again later.", 500);
   }
@@ -86,9 +86,10 @@ export const handleUserLogin = async (req, res) => {
 };
 
 export const handleCookieLogin = (req, res) => {
-  if (!req.user.user) return res.status(401).json({ msg: "Please Login" });
+  console.log(req.user)
+  if (!req.user) return res.status(401).json({ msg: "Please Login" });
 
-  return res.json({ data: req.user.user });
+  return res.json({ data: req.user });
 };
 
 export const handleEmailVerification = async (req, res) => {
@@ -107,8 +108,8 @@ export const handleEmailVerification = async (req, res) => {
 }
 export const changePassword = async (req, res) => {
 
-  const userId = req.user.user.userId;
-  // console.log(req.body);
+  const userId = req.user.userId;
+ 
   const { currentPassword, newPassword } = req.body;
 
   const user = await User.findById(userId);
